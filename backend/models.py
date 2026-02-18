@@ -1,10 +1,11 @@
 from django.core.validators import MinValueValidator
 from django.db import models
-from django.utils.text import slugify
 from django.conf import settings
 from imagekit.models import ImageSpecField
 from imagekit.processors import ResizeToFill
 from .validators import validate_image_size
+from .utils import generate_unique_slug
+from smart_selects.db_fields import ChainedForeignKey
 
 
 class Category(models.Model):
@@ -12,7 +13,8 @@ class Category(models.Model):
 
     name = models.CharField(
         max_length=100,
-        verbose_name='Название'
+        verbose_name='Название',
+        unique=True
     )
     slug = models.SlugField(
         max_length=255,
@@ -38,14 +40,8 @@ class Category(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
-        # автоматическое создание slug из названия
-        if not self.slug:
-            self.slug = slugify(self.name)
-        original_slug = self.slug
-        counter = 1
-        while Category.objects.filter(slug=self.slug).exists():
-            self.slug = f'{original_slug}-{counter}'
-            counter += 1
+        if self.pk is None:
+            generate_unique_slug(self)
         super().save(*args, **kwargs)
 
 
@@ -86,14 +82,8 @@ class Subcategory(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
-        # автоматическое создание slug из названия
-        if not self.slug:
-            self.slug = slugify(self.name)
-        original_slug = self.slug
-        counter = 1
-        while Subcategory.objects.filter(slug=self.slug).exists():
-            self.slug = f'{original_slug}-{counter}'
-            counter += 1
+        if self.pk is None:
+            generate_unique_slug(self)
         super().save(*args, **kwargs)
 
 
@@ -112,12 +102,17 @@ class Product(models.Model):
         related_name='products',
         blank=True,
         on_delete=models.CASCADE)
-    subcategory = models.ForeignKey(
+    subcategory = ChainedForeignKey(
         Subcategory,
         verbose_name='Подкатегория',
         related_name='products',
         blank=True,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        chained_field='category',
+        chained_model_field='category',
+        show_all=False,
+        auto_choose=True,
+        sort=True
     )
     price = models.DecimalField(
         max_digits=10,
@@ -168,14 +163,8 @@ class Product(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
-        # автоматическое создание slug из названия
-        if not self.slug:
-            self.slug = slugify(self.name)
-        original_slug = self.slug
-        counter = 1
-        while Product.objects.filter(slug=self.slug).exists():
-            self.slug = f'{original_slug}-{counter}'
-            counter += 1
+        if self.pk is None:
+            generate_unique_slug(self)
         super().save(*args, **kwargs)
 
 
