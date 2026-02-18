@@ -2,6 +2,9 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils.text import slugify
 from django.conf import settings
+from imagekit.models import ImageSpecField
+from imagekit.processors import ResizeToFill
+from .validators import validate_image_size
 
 
 class Category(models.Model):
@@ -17,12 +20,14 @@ class Category(models.Model):
         verbose_name='URL-идентификатор',
         blank=True
     )
-    # image = models.ImageField(
-    #     upload_to='categories',
-    #     verbose_name='Изображение',
-    #     blank=True,
-    #     null=True
-    # )
+    image = models.ImageField(
+        upload_to='categories/',
+        verbose_name='Изображение',
+        blank=True,
+        null=True,
+        validators=[validate_image_size],
+        help_text='Максимальный размер: 5МВ'
+    )
 
     class Meta:
         verbose_name = 'Категория'
@@ -63,12 +68,14 @@ class Subcategory(models.Model):
         verbose_name='URL-идентификатор',
         blank=True
     )
-    # image = models.ImageField(
-    #     upload_to='categories',
-    #     verbose_name='Изображение',
-    #     blank=True,
-    #     null=True
-    # )
+    image = models.ImageField(
+        upload_to='subcategories/',
+        verbose_name='Изображение',
+        blank=True,
+        null=True,
+        validators=[validate_image_size],
+        help_text='Максимальный размер: 5МВ'
+    )
 
     class Meta:
         verbose_name = 'Подкатегория'
@@ -125,7 +132,32 @@ class Product(models.Model):
         verbose_name='URL-идентификатор',
         blank=True
     )
-    # image - в 3-х размерах
+    image = models.ImageField(
+        upload_to='products/',
+        verbose_name='Изображение',
+        blank=True,
+        null=True,
+        validators=[validate_image_size],
+        help_text='Максимальный размер: 5МВ'
+    )
+    image_small = ImageSpecField(
+        source='image',
+        processors=[ResizeToFill(100, 100)],
+        format='JPEG',
+        options={'quality': 85}
+    )
+    image_medium = ImageSpecField(
+        source='image',
+        processors=[ResizeToFill(300, 300)],
+        format='JPEG',
+        options={'quality': 90}
+    )
+    image_large = ImageSpecField(
+        source='image',
+        processors=[ResizeToFill(800, 800)],
+        format='JPEG',
+        options={'quality': 95}
+    )
 
     class Meta:
         verbose_name = 'Продукт'
