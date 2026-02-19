@@ -1,7 +1,9 @@
 from rest_framework import serializers
-from .models import Category, Subcategory, Product
-from django.contrib.auth.models import User
+from .models import Category, Subcategory, Product, Cart, CartItem
+from django.contrib.auth import get_user_model
 from django.contrib.auth import authenticate
+
+User = get_user_model()
 
 
 class SubcategorySerializer(serializers.ModelSerializer):
@@ -66,3 +68,39 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'username')
+
+
+class CartItemSerializer(serializers.ModelSerializer):
+    product_slug = serializers.SlugRelatedField(slug_field='slug',
+                                                queryset=Product.objects.all(),
+                                                write_only=True)
+    product_name = serializers.CharField(source='product.name', read_only=True)
+    product_price = serializers.DecimalField(source='product.price',
+                                             max_digits=10,
+                                             decimal_places=2,
+                                             read_only=True)
+    total_price = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CartItem
+        fields = ['id', 'product_slug', 'product_name',
+                  'product_price', 'quantity', 'total_price']
+
+    def get_total_price(self, obj):
+        return obj.total_price
+
+
+class CartSerializer(serializers.ModelSerializer):
+    items = CartItemSerializer(many=True, read_only=True)
+    total_items = serializers.SerializerMethodField()
+    total_price = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Cart
+        fields = ['id', 'items', 'total_items', 'total_price']
+
+    def get_total_items(self, obj):
+        return sum(item.quantity for item in obj.cart_items.all())
+
+    def get_total_price(self, obj):
+        return sum(item.total_price for item in obj.cart_items.all())

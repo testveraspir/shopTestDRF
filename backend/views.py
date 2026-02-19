@@ -1,13 +1,14 @@
-from rest_framework.permissions import AllowAny
-from rest_framework.generics import ListAPIView
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate
 from .serializers import (CategorySerializer, ProductSerializer,
-                          RegisterSerializer, LoginSerializer, UserSerializer)
-from .models import Category, Product
+                          RegisterSerializer, LoginSerializer,
+                          UserSerializer, CartSerializer)
+from .models import Category, Product, Cart
 
 
 class CategoryView(ListAPIView):
@@ -62,3 +63,14 @@ class LoginView(APIView):
                 'token': token.key
             }, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CartDetailView(RetrieveAPIView):
+    """Класс для просмотра корзины"""
+
+    serializer_class = CartSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        cart, _ = Cart.objects.get_or_create(user=self.request.user)
+        return cart
