@@ -1,0 +1,20 @@
+[
+{
+  "model": "backend.category",
+  "pk": 1,
+  "fields": {
+    "name": "Электроника",
+    "slug": "elektronika",
+    "image": "categories/electronic_HSzVy42.png"
+  }
+},
+{
+  "model": "backend.category",
+  "pk": 2,
+  "fields": {
+    "name": "Бытовая техника",
+    "slug": "bytovaia-tekhnika",
+    "image": ""
+  }
+}
+]

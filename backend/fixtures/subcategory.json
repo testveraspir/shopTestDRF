@@ -1,0 +1,52 @@
+[
+{
+  "model": "backend.subcategory",
+  "pk": 1,
+  "fields": {
+    "name": "Смартфоны",
+    "category": 1,
+    "slug": "smartfony",
+    "image": "subcategories/smarothon_samsung.png"
+  }
+},
+{
+  "model": "backend.subcategory",
+  "pk": 2,
+  "fields": {
+    "name": "Крупная",
+    "category": 2,
+    "slug": "krupnaia",
+    "image": ""
+  }
+},
+{
+  "model": "backend.subcategory",
+  "pk": 3,
+  "fields": {
+    "name": "Мелкая",
+    "category": 2,
+    "slug": "melkaia",
+    "image": ""
+  }
+},
+{
+  "model": "backend.subcategory",
+  "pk": 4,
+  "fields": {
+    "name": "Ноутбуки",
+    "category": 1,
+    "slug": "noutbuki",
+    "image": ""
+  }
+},
+{
+  "model": "backend.subcategory",
+  "pk": 5,
+  "fields": {
+    "name": "Аксессуары",
+    "category": 1,
+    "slug": "aksessuary",
+    "image": ""
+  }
+}
+]

@@ -1,0 +1,110 @@
+[
+{
+  "model": "backend.product",
+  "pk": 2,
+  "fields": {
+    "name": "iPhone 15 Pro",
+    "category": 1,
+    "subcategory": 4,
+    "price": "100000.00",
+    "slug": "iphone-15-pro",
+    "image": "products/smarothon_samsung.png"
+  }
+},
+{
+  "model": "backend.product",
+  "pk": 3,
+  "fields": {
+    "name": "Samsung Galaxy S24",
+    "category": 1,
+    "subcategory": 1,
+    "price": "800000.00",
+    "slug": "samsung-galaxy-s24",
+    "image": ""
+  }
+},
+{
+  "model": "backend.product",
+  "pk": 4,
+  "fields": {
+    "name": "MacBook Air",
+    "category": 1,
+    "subcategory": 4,
+    "price": "120000.00",
+    "slug": "macbook-air",
+    "image": ""
+  }
+},
+{
+  "model": "backend.product",
+  "pk": 5,
+  "fields": {
+    "name": "ASUS ZenBook",
+    "category": 1,
+    "subcategory": 4,
+    "price": "70000.00",
+    "slug": "asus-zenbook",
+    "image": ""
+  }
+},
+{
+  "model": "backend.product",
+  "pk": 7,
+  "fields": {
+    "name": "Наушники Sony",
+    "category": 1,
+    "subcategory": 5,
+    "price": "25000.00",
+    "slug": "naushniki-sony",
+    "image": ""
+  }
+},
+{
+  "model": "backend.product",
+  "pk": 8,
+  "fields": {
+    "name": "Наушники JBL",
+    "category": 1,
+    "subcategory": 5,
+    "price": "50000.50",
+    "slug": "naushniki-jbl",
+    "image": ""
+  }
+},
+{
+  "model": "backend.product",
+  "pk": 9,
+  "fields": {
+    "name": "Холодильник Bosch",
+    "category": 2,
+    "subcategory": 2,
+    "price": "900000.00",
+    "slug": "kholodilnik-bosch",
+    "image": ""
+  }
+},
+{
+  "model": "backend.product",
+  "pk": 10,
+  "fields": {
+    "name": "Стиральная машина LG",
+    "category": 2,
+    "subcategory": 2,
+    "price": "600000.00",
+    "slug": "stiralnaia-mashina-lg",
+    "image": "products/стиральная_машина_QEn09U1.png"
+  }
+},
+{
+  "model": "backend.product",
+  "pk": 11,
+  "fields": {
+    "name": "Микроволновка Samsung",
+    "category": 2,
+    "subcategory": 3,
+    "price": "12000.00",
+    "slug": "mikrovolnovka-samsung",
+    "image": ""
+  }
+}
+]
