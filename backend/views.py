@@ -7,8 +7,9 @@ from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate
 from .serializers import (CategorySerializer, ProductSerializer,
                           RegisterSerializer, LoginSerializer,
-                          UserSerializer, CartSerializer)
-from .models import Category, Product, Cart
+                          UserSerializer, CartSerializer, CartItemSerializer)
+from .models import Category, Product, Cart, CartItem
+from django.db import transaction
 
 
 class CategoryView(ListAPIView):
@@ -74,3 +75,42 @@ class CartDetailView(RetrieveAPIView):
     def get_object(self):
         cart, _ = Cart.objects.get_or_create(user=self.request.user)
         return cart
+
+
+class CartAddUpdateView(APIView):
+    """Класс для добавления/обновления товара"""
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = CartItemSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(
+                {
+                    "error": "Validation failed",
+                    "details": serializer.errors
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        product = serializer.validated_data['product_slug']
+        quantity = serializer.validated_data['quantity']
+        cart, _ = Cart.objects.get_or_create(user=request.user)
+        with transaction.atomic():
+            cart_item, created = CartItem.objects.get_or_create(cart=cart,
+                                                                product=product,
+                                                                defaults={'quantity': quantity})
+            if not created:
+                cart_item.quantity = quantity
+                cart_item.save()
+
+        cart_serializer = CartSerializer(cart)
+        if created:
+            return Response({
+                'message': 'Товар добавлен в корзину',
+                'cart': cart_serializer.data
+            }, status=status.HTTP_201_CREATED)
+        else:
+            return Response({
+                'message': 'Количество товара обновлено',
+                'cart': cart_serializer.data
+            }, status=status.HTTP_200_OK)
