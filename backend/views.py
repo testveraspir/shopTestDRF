@@ -144,3 +144,18 @@ class CartRemoveView(DestroyAPIView):
                 'message': 'Товар успешно удален из корзины',
                 'cart': CartSerializer(cart).data
             }, status=status.HTTP_200_OK)
+
+
+class CartClearView(APIView):
+    """Класс для полной очистки корзины"""
+
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request):
+        cart = get_object_or_404(Cart, user=request.user)
+        if not cart.cart_items.exists():
+            return Response({'detail': 'Корзина уже пуста'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        cart.cart_items.all().delete()
+        return Response({'detail': 'Корзина успешно очищена'},
+                        status=status.HTTP_200_OK)
