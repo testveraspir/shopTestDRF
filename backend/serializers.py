@@ -80,11 +80,7 @@ class CartItemSerializer(serializers.ModelSerializer):
                                              decimal_places=2,
                                              read_only=True)
     total_price = serializers.SerializerMethodField()
-
-    def validate_quantity(self, value):
-        if value < 1:
-            raise serializers.ValidationError('Количество должно быть больше 0')
-        return value
+    quantity = serializers.IntegerField(required=True, min_value=1)
 
     class Meta:
         model = CartItem
