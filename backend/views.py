@@ -1,5 +1,6 @@
+from django.shortcuts import get_object_or_404
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.generics import ListAPIView, RetrieveAPIView
+from rest_framework.generics import ListAPIView, RetrieveAPIView, DestroyAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -113,4 +114,33 @@ class CartAddUpdateView(APIView):
             return Response({
                 'message': 'Количество товара обновлено',
                 'cart': cart_serializer.data
+            }, status=status.HTTP_200_OK)
+
+
+class CartRemoveView(DestroyAPIView):
+    """Класс для удаления товара из корзины по product_slug"""
+
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        cart, _ = Cart.objects.get_or_create(user=self.request.user)
+        return cart.cart_items.all()
+
+    def get_object(self):
+        product_slug = self.kwargs['product_slug']
+        cart = Cart.objects.get(user=self.request.user)
+
+        cart_item = get_object_or_404(CartItem,
+                                      cart=cart,
+                                      product__slug=product_slug)
+        return cart_item
+
+    def destroy(self, request, *args, **kwargs):
+        cart_item = self.get_object()
+        cart = cart_item.cart
+        cart_item.delete()
+
+        return Response({
+                'message': 'Товар успешно удален из корзины',
+                'cart': CartSerializer(cart).data
             }, status=status.HTTP_200_OK)
