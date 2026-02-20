@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiParameter
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.generics import ListAPIView, RetrieveAPIView, DestroyAPIView
 from rest_framework.views import APIView
@@ -13,16 +14,30 @@ from .models import Category, Product, Cart, CartItem
 from django.db import transaction
 
 
+@extend_schema(
+    tags=['catalog'],
+    summary="Список категорий",
+    description="Возвращает список всех категорий с подкатегориями",
+    responses={200: CategorySerializer(many=True)},
+    auth=[]
+)
 class CategoryView(ListAPIView):
-    """Класс для просмотра категорий с подкатегориями."""
+    """Просмотр категорий с подкатегориями."""
 
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = [AllowAny]
 
 
+@extend_schema(
+    tags=['catalog'],
+    summary="Список товаров",
+    description="Возвращает список всех товаров с детальной информацией",
+    responses={200: ProductSerializer(many=True)},
+    auth=[]
+)
 class ProductView(ListAPIView):
-    """Класс для просмотра продуктов."""
+    """Просмотр списка продуктов."""
 
     queryset = Product.objects.all() \
         .select_related('category', 'subcategory')
@@ -30,8 +45,29 @@ class ProductView(ListAPIView):
     permission_classes = [AllowAny]
 
 
+@extend_schema(
+    tags=['auth'],
+    summary="Регистрация пользователя",
+    description="Создает нового пользователя и возвращает токен авторизации",
+    auth=[],
+    request=RegisterSerializer,
+    responses={
+        201: OpenApiResponse(
+            description="Пользователь успешно создан",
+            response={
+                "type": "object",
+                "properties": {
+                    "user": {"type": "object"},
+                    "token": {"type": "string",
+                              "example": "9944b09199c62bcf9418ad846dd0e4bbdfc6ee4b"}
+                }
+            }
+        ),
+        400: OpenApiResponse(description="Ошибка валидации")
+    }
+)
 class RegisterView(APIView):
-    """Класс для регистрации пользователя."""
+    """Регистрация нового пользователя."""
 
     permission_classes = [AllowAny]
 
@@ -50,8 +86,30 @@ class RegisterView(APIView):
         )
 
 
+@extend_schema(
+    tags=['auth'],
+    summary="Авторизация пользователя",
+    description="Вход в систему по username/password. Возвращает токен авторизации",
+    auth=[],
+    request=LoginSerializer,
+    responses={
+        200: OpenApiResponse(
+            description="Успешный вход",
+            response={
+                "type": "object",
+                "properties": {
+                    "user": {"type": "object"},
+                    "token": {"type": "string",
+                              "example": "9944b09199c62bcf9418ad846dd0e4bbdfc6ee4b"}
+                }
+            }
+        ),
+        400: OpenApiResponse(description="Неверные учетные данные"),
+        401: OpenApiResponse(description="Не удалось аутентифицировать")
+    }
+)
 class LoginView(APIView):
-    """Класс для авторизации пользователя."""
+    """Авторизация пользователя."""
 
     permission_classes = [AllowAny]
 
@@ -67,8 +125,14 @@ class LoginView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@extend_schema(
+    tags=['cart'],
+    summary="Просмотр корзины",
+    description="Возвращает текущую корзину пользователя со всеми товарами",
+    responses={200: CartSerializer}
+)
 class CartDetailView(RetrieveAPIView):
-    """Класс для просмотра корзины"""
+    """Просмотр корзины текущего пользователя."""
 
     serializer_class = CartSerializer
     permission_classes = [IsAuthenticated]
@@ -78,8 +142,25 @@ class CartDetailView(RetrieveAPIView):
         return cart
 
 
+@extend_schema(
+    tags=['cart'],
+    summary="Добавление или обновление товара в корзине",
+    description="""
+    Добавляет новый товар в корзину или обновляет количество существующего.
+
+    - Если товара нет в корзине - создаётся новая позиция
+    - Если товар уже есть - обновляется его количество
+    """,
+    request=CartItemSerializer,
+    responses={
+        200: CartSerializer,
+        201: CartSerializer,
+        400: OpenApiResponse(description="Ошибка валидации"),
+        401: OpenApiResponse(description="Не авторизован")
+    }
+)
 class CartAddUpdateView(APIView):
-    """Класс для добавления/обновления товара"""
+    """Добавление или обновление товара в корзине."""
 
     permission_classes = [IsAuthenticated]
 
@@ -117,8 +198,29 @@ class CartAddUpdateView(APIView):
             }, status=status.HTTP_200_OK)
 
 
+@extend_schema(
+    tags=['cart'],
+    summary="Удаление товара из корзины",
+    description="Удаляет конкретный товар по slug из корзины пользователя.",
+    parameters=[
+        OpenApiParameter(
+            name='product_slug',
+            description='Slug товара, который нужно удалить',
+            required=True,
+            type=str,
+            location=OpenApiParameter.PATH)
+    ],
+    responses={
+        200: OpenApiResponse(
+            description="Товар успешно удален",
+            response=CartSerializer
+        ),
+        401: OpenApiResponse(description="Не авторизован"),
+        404: OpenApiResponse(description="Товар не найден в корзине")
+    }
+)
 class CartRemoveView(DestroyAPIView):
-    """Класс для удаления товара из корзины по product_slug"""
+    """Удаление товара из корзины по product_slug."""
 
     permission_classes = [IsAuthenticated]
 
@@ -141,13 +243,24 @@ class CartRemoveView(DestroyAPIView):
         cart_item.delete()
 
         return Response({
-                'message': 'Товар успешно удален из корзины',
-                'cart': CartSerializer(cart).data
-            }, status=status.HTTP_200_OK)
+            'message': 'Товар успешно удален из корзины',
+            'cart': CartSerializer(cart).data
+        }, status=status.HTTP_200_OK)
 
 
+@extend_schema(
+    tags=['cart'],
+    summary="Очистка корзины",
+    description="Полностью удаляет все товары из корзины текущего пользователя",
+    request=None,
+    responses={
+        200: OpenApiResponse(description="Корзина успешно очищена"),
+        400: OpenApiResponse(description="Корзина уже пуста"),
+        401: OpenApiResponse(description="Не авторизован")
+    }
+)
 class CartClearView(APIView):
-    """Класс для полной очистки корзины"""
+    """Полная очистка корзины пользователя."""
 
     permission_classes = [IsAuthenticated]
 

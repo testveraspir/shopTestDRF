@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 from .models import Category, Subcategory, Product, Cart, CartItem
 from django.contrib.auth import get_user_model
@@ -32,6 +33,19 @@ class ProductSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'slug', 'price',
                   'category_name', 'subcategory_name', 'images']
 
+    @extend_schema_field({
+        'type': 'array',
+        'items': {
+            'type': 'string',
+            'format': 'uri',
+            'example': '/media/products/small/image.jpg'
+        },
+        'example': [
+            '/media/products/small/image.jpg',
+            '/media/products/medium/image.jpg',
+            '/media/products/large/image.jpg'
+        ]
+    })
     def get_images(self, obj):
         if not obj.image:
             return []
