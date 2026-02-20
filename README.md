@@ -2,13 +2,13 @@
 
 ## 1. О проекте
 
-**Интернет-магазин API** — это backend-приложение для управления каталогом товаров и корзиной покупателя.
+**Интернет-магазин API** — это backend-приложение для работы с каталогом товаров (категории, подкатегории, продукты) и корзиной покупателя.
 
 **Версия:** 1.0.0
 
 **Документация Swagger:** [/api/docs/](http://localhost:8000/api/docs/)
 
-**Документация ReDoc:** [/api/docs/](http://localhost:8000/api/redoc/)
+**Документация ReDoc:** [/api/redoc/](http://localhost:8000/api/redoc/)
 
 **Схема OpenAPI:** [/api/schema/](http://localhost:8000/api/schema/)
 
@@ -256,4 +256,4 @@ python manage.py createsuperuser
 
 - Swagger: [/api/docs/](http://localhost:8000/api/docs/)
 
-- ReDoc: [/api/docs/](http://localhost:8000/api/redoc/)
+- ReDoc: [/api/redoc/](http://localhost:8000/api/redoc/)
