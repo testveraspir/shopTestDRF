@@ -1,16 +1,11 @@
-# This is a sample Python script.
+# Задача 1
+n = int(input("Введите число: "))
+i = 1
+count = 0
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
-
-
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+while count < n:
+    for j in range(i):
+        if count < n:
+            print(i, end="")
+            count += 1
+    i += 1
